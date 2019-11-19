@@ -2,15 +2,11 @@
 
 namespace Charcoal\Api;
 
+use InvalidArgumentException;
+
 // From PSR-7
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-
-// From 'charcoal-core'
-use Charcoal\Model\ModelInterface;
-
-// From 'charcoal-presenter'
-use Charcoal\Presenter\Presenter;
 
 // From 'charcoal-api'
 use Charcoal\Api\Repositories\ModelCollectionLoader;

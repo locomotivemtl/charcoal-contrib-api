@@ -10,9 +10,8 @@ abstract class AbstractTransformer
     /**
      * @param array $data Transformer dependencies.
      */
-    public function __construct(array $data)
-    {
-    }
+    public function __construct(array $data = [])
+    {}
 
     /**
      * Alias of {@see self::__invoke()}.
