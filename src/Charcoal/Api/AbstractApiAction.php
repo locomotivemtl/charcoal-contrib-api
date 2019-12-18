@@ -19,6 +19,9 @@ use Psr\Log\LoggerAwareTrait;
 use Charcoal\Model\ModelFactoryTrait;
 use Charcoal\Model\ModelInterface;
 
+// From 'charcoal-translator'
+use Charcoal\Translator\TranslatorAwareTrait;
+
 // From 'charcoal-user'
 use Charcoal\User\AuthAwareTrait;
 
@@ -34,6 +37,7 @@ abstract class AbstractApiAction implements
     use AuthAwareTrait;
     use LoggerAwareTrait;
     use ModelFactoryTrait;
+    use TranslatorAwareTrait;
 
     /** @const array Unauthorized request error. */
     const ERROR_UNAUTHORIZED_REQUEST = [ 'message' => 'Unauthorized request.' ];
@@ -85,8 +89,7 @@ abstract class AbstractApiAction implements
      * @param array $data Action dependencies.
      */
     public function __construct(array $data = [])
-    {
-    }
+    {}
 
     /**
      * Implement in child actions.
@@ -108,6 +111,7 @@ abstract class AbstractApiAction implements
         $this->setAuthenticator($container['api/auth/authenticator']);
         $this->setLogger($container['logger']);
         $this->setModelFactory($container['model/factory']);
+        $this->setTranslator($container['translator']);
 
         $this->debug = (bool)$container['debug'];
     }
@@ -358,8 +362,8 @@ abstract class AbstractApiAction implements
     protected function authOptions()
     {
         return [
-            'userRequired'    => true,
-            'permissions'     => null,
+            'userRequired' => false,
+            'permissions'  => null,
         ];
     }
 

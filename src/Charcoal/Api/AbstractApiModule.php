@@ -36,10 +36,24 @@ abstract class AbstractApiModule extends AbstractModule
         // Used by HandlesCors
         $this->setContainer($app->getContainer());
 
-        $app->group($this->apiPath(), [ $this, 'mapApiRoutes' ])
-            ->add($this->createCorsMiddleware());
+        $apiRoutes = $app->group($this->apiPath(), [ $this, 'mapApiRoutes' ]);
+        foreach ($this->apiRoutesMiddleware() as $middleware) {
+            $apiRoutes->add($middleware);
+        }
 
         return $this;
+    }
+
+    /**
+     * Retrieve the middleware to apply on the API routes group.
+     *
+     * @return array
+     */
+    protected function apiRoutesMiddleware()
+    {
+        return [
+            $this->createCorsMiddleware(),
+        ];
     }
 
     /**
@@ -51,6 +65,13 @@ abstract class AbstractApiModule extends AbstractModule
     abstract public static function mapApiRoutes(App $app);
 
     /**
+     * Retrieve the API path.
+     *
+     * @return string
+     */
+    abstract protected function apiPath();
+
+    /**
      * Set container for use with the template controller
      *
      * @param  Container $container A dependencies container instance.
@@ -60,11 +81,4 @@ abstract class AbstractApiModule extends AbstractModule
     {
         $this->container = $container;
     }
-
-    /**
-     * Retrieve the API path.
-     *
-     * @return string
-     */
-    abstract protected function apiPath();
 }
