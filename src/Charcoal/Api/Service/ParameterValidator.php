@@ -23,6 +23,81 @@ class ParameterValidator
     private $isStrictMode;
 
     /**
+     * @see https://www.php.net/manual/en/filter.filters.validate.php
+     * Having multiple flags:
+     *      'flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_ENCODE_HIGH
+     * @return array
+     */
+    protected function acceptedTypes()
+    {
+        return [
+            'boolean'   => [
+                'filter'  => FILTER_VALIDATE_BOOLEAN,
+                'options' => [
+                    'options' => [],
+                    // If FILTER_NULL_ON_FAILURE is set, FALSE is returned only for "0", "false",
+                    // "off", "no", and "", and NULL is returned for all non-boolean values.
+                    'flags' => FILTER_NULL_ON_FAILURE
+                ]
+            ],
+            'string'   => [
+                'filter'  => FILTER_SANITIZE_STRING,
+                'options' => [
+                    'options' => []
+                ]
+            ],
+            'email'    => [
+                'filter'  => FILTER_VALIDATE_EMAIL,
+                'options' => [
+                    'options' => []
+                ]
+            ],
+            'int'    => [
+                'filter'  => FILTER_VALIDATE_INT,
+                'options' => [
+                    'options' => []
+                ]
+            ],
+            'float'    => [
+                'filter'  => FILTER_VALIDATE_FLOAT,
+                'options' => [
+                    'options' => []
+                ]
+            ],
+            'callback' => [
+                'filter'  => FILTER_CALLBACK,
+                'options' => [
+                    'options' => []
+                ]
+            ],
+            'array'    => [
+                'filter'  => FILTER_CALLBACK,
+                'options' => [
+                    'options' => [$this, 'validateArray']
+                ]
+            ],
+            'url' => [
+                'filter' => FILTER_VALIDATE_URL,
+                'options' => [
+
+                ]
+            ],
+            'regexp' => [
+                'filter' => FILTER_VALIDATE_REGEXP,
+                'options' => [
+                    'regexp' => ''
+                ]
+            ],
+            'unsafe'   => [
+                'filter'  => FILTER_CALLBACK,
+                'options' => [
+                    'options' => [$this, 'validateUnsafe']
+                ]
+            ]
+        ];
+    }
+
+    /**
      * @param array   $rules The parameters rules.
      * @param bool $flag  The strict flag. Strict mode will check for superfluous parameters.
      */
@@ -50,6 +125,14 @@ class ParameterValidator
                 ];
                 continue;
             }
+
+            if (is_array($options['values']) && !empty($options['values']) && !in_array($parameters[$name], $options['values'])) {
+                $errs[] = [
+                    'message' => sprintf('Parameter "%s" must be one of "%s".', $name, implode('|', $options['values']))
+                ];
+                continue;
+            }
+
             if (isset($parameters[$name])) {
                 if ($options['empty'] === true && empty($parameters[$name]) === false) {
                     $errors[] = [
@@ -69,21 +152,27 @@ class ParameterValidator
                         ];
                     }
                 }
-                if ($options['type'] === 'string' && !is_string($parameters[$name])) {
-                    $errors[] = [
-                        'message' => sprintf('Parameter "%s" must be a string.', $name),
+
+                $type = isset($options['type']) ? $options['type'] : 'unsafe';
+                if (!isset($this->acceptedTypes()[$type])) {
+                    $errs[] = [
+                        'message' => sprintf('Invalid type "%s" provided for "%s".', $type, $name)
                     ];
+                } else {
+                    $filterType = $this->acceptedTypes()[$type];
+                    if (isset($options['typeOptions'])) {
+                        $filterType['options'] = array_merge($filterType['options'], $options['typeOptions']);
+                    }
+
+                    $val = filter_var($parameters[$name], $filterType['filter'], $filterType['options']);
+
+                    if (!$val) {
+                        $errs[] = [
+                            'message' => sprintf('Parameter "%s" must be of type "%s".', $name, $type)
+                        ];
+                    }
                 }
-                if (($options['type'] === 'int' || $options['type'] === 'integer') && !is_numeric($parameters[$name])) {
-                    $errors[] = [
-                        'message' => sprintf('Parameter "%s" must be an integer.', $name),
-                    ];
-                }
-                if ($options['type'] === 'array' && !is_array($parameters[$name])) {
-                    $errors[] = [
-                        'message' => sprintf('Parameter "%s" must be an array.', $name),
-                    ];
-                }
+
             }
         }
 
@@ -121,8 +210,34 @@ class ParameterValidator
                 'empty'           => isset($options['empty']) ? boolval($options['empty']) : null,
                 'callback'        => isset($options['callback']) && is_callable($options['callback']) ? $options['callback'] : null,
                 'callbackMessage' => isset($options['callbackMessage']) ? $options['callbackMessage'] : null,
+                'values'          => isset($options['values']) ? $options['values'] : null,
+                'typeOptions'     => [],
             ];
         }
         return $parameters;
+    }
+
+    /**
+     * @param $array
+     * @return array|bool
+     */
+    public function validateArray($array)
+    {
+        if (!$array) {
+            return false;
+        }
+
+        return is_array($array) ? $array : false;
+    }
+
+    /**
+     * Default callback validation when no type defined.
+     *
+     * @param $value
+     * @return mixed
+     */
+    public function validateUnsafe($value)
+    {
+        return $value;
     }
 }
