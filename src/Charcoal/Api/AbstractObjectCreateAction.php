@@ -3,6 +3,7 @@
 namespace Charcoal\Api;
 
 use InvalidArgumentException;
+use RuntimeException;
 
 // From PSR-7
 use Psr\Http\Message\ResponseInterface as Response;
@@ -73,15 +74,19 @@ abstract class AbstractObjectCreateAction extends AbstractApiAction
     abstract protected function createObject(Request $request);
 
     /**
-     * Validate the loaded object.
+     * Validate the created object.
      *
      * @param  ModelInterface|null $object The object to validate.
+     * @throws RuntimeException If no errors are defined but the object is invalid. We need to know why.
      * @return array|bool
      */
     protected function validateObject($object)
     {
         if (!$object || !$object['id']) {
-            return [ 'message' => 'Resource not found' ];
+            if (empty($this->errors())) {
+                throw new RuntimeException('The object is not valid, but a list of errors was not defined.');
+            }
+            return $this->errors();
         }
 
         return true;
