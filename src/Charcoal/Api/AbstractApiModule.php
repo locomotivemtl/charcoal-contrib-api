@@ -2,7 +2,7 @@
 
 namespace Charcoal\Api;
 
-// From Pimple
+// From 'pimple/pimple'
 use Pimple\Container;
 
 // From 'charcoal-app'

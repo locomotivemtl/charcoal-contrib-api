@@ -2,7 +2,7 @@
 
 namespace Charcoal\Api;
 
-// From PSR-7
+// From 'psr/http-message'
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 

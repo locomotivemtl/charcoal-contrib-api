@@ -4,7 +4,7 @@ namespace Charcoal\Api;
 
 use Throwable;
 
-// From PSR-7
+// From 'psr/http-message'
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -108,12 +108,15 @@ abstract class AbstractApiAction implements
      */
     public function setDependencies(Container $container)
     {
-        $this->setAuthenticator($container['api/auth/authenticator']);
         $this->setLogger($container['logger']);
         $this->setModelFactory($container['model/factory']);
         $this->setTranslator($container['translator']);
 
         $this->debug = (bool)$container['debug'];
+
+        if ($container->has('api/auth/authenticator')) {
+            $this->setAuthenticator($container['api/auth/authenticator']);
+        }
     }
 
     /**

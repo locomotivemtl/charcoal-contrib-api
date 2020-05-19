@@ -5,12 +5,12 @@ namespace Charcoal\Api;
 use InvalidArgumentException;
 use RuntimeException;
 
-// From PSR-7
+// From 'psr/http-message'
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-// From 'charcoal-api'
-use Charcoal\Api\Repositories\ModelCollectionLoader;
+// From 'mcaskill/charcoal-model-collection'
+use Charcoal\Support\Model\Repository\ModelCollectionLoader;
 
 /**
  * The Charcoal API Object Create Action.
@@ -96,7 +96,7 @@ abstract class AbstractObjectCreateAction extends AbstractApiAction
      * @param  ModelCollectionLoader $repository Model collection loader.
      * @return void
      */
-    private function setObjectRepository(ModelCollectionLoader $repository)
+    protected function setObjectRepository(ModelCollectionLoader $repository)
     {
         $this->objectRepository = $repository;
     }
@@ -105,7 +105,7 @@ abstract class AbstractObjectCreateAction extends AbstractApiAction
      * @param  object $presenter Presenter and proper transformer.
      * @return void
      */
-    private function setObjectPresenter($presenter)
+    protected function setObjectPresenter($presenter)
     {
         if (!is_callable([ $presenter, 'transform' ])) {
             throw new InvalidArgumentException(
