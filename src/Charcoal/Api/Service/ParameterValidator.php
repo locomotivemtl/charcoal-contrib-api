@@ -127,7 +127,7 @@ class ParameterValidator
             }
 
             if (is_array($options['values']) && !empty($options['values']) && !in_array($parameters[$name], $options['values'])) {
-                $errs[] = [
+                $errors[] = [
                     'message' => sprintf('Parameter "%s" must be one of "%s".', $name, implode('|', $options['values']))
                 ];
                 continue;
@@ -155,7 +155,7 @@ class ParameterValidator
 
                 $type = isset($options['type']) ? $options['type'] : 'unsafe';
                 if (!isset($this->acceptedTypes()[$type])) {
-                    $errs[] = [
+                    $errors[] = [
                         'message' => sprintf('Invalid type "%s" provided for "%s".', $type, $name)
                     ];
                 } else {
@@ -167,7 +167,7 @@ class ParameterValidator
                     $val = filter_var($parameters[$name], $filterType['filter'], $filterType['options']);
 
                     if (!$val) {
-                        $errs[] = [
+                        $errors[] = [
                             'message' => sprintf('Parameter "%s" must be of type "%s".', $name, $type)
                         ];
                     }
