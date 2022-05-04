@@ -164,7 +164,8 @@ class ParameterValidator
                         $filterType['options'] = array_merge($filterType['options'], $options['typeOptions']);
                     }
 
-                    if (filter_var($parameters[$name], $filterType['filter'], $filterType['options']) === false) {
+                    $val = filter_var($parameters[$name], $filterType['filter'], $filterType['options']);
+                    if ($val === false && $val !== $parameters[$name]) {
                         $errors[] = [
                             'message' => sprintf('Parameter "%s" must be of type "%s".', $name, $type)
                         ];
