@@ -269,7 +269,7 @@ abstract class AbstractApiAction implements
     /**
      * @return array|bool
      */
-    private function validateUser()
+    protected function validateUser()
     {
         $options = $this->authOptions();
         if ($options['userRequired'] !== true) {
@@ -289,7 +289,7 @@ abstract class AbstractApiAction implements
     /**
      * @return array|bool
      */
-    private function validatePermissions()
+    protected function validatePermissions()
     {
         $options = $this->authOptions();
         if (!$options['permissions']) {
