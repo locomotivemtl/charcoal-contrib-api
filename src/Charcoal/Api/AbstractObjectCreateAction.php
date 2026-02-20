@@ -57,6 +57,10 @@ abstract class AbstractObjectCreateAction extends AbstractApiAction
 
         $object = $this->createObject($request);
 
+        if ($this->hasErrors()) {
+            return $this->sendJsonErrors($this->errors(), 400, $response);
+        }
+
         $objectValidation = $this->validateObject($object);
         if ($objectValidation !== true) {
             return $this->sendJsonErrors($objectValidation, 404, $response);

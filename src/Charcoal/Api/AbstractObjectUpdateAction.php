@@ -47,6 +47,10 @@ abstract class AbstractObjectUpdateAction extends AbstractObjectDetailsAction
 
         $object = $this->updateObject($object, $request);
 
+        if ($this->hasErrors()) {
+            return $this->sendJsonErrors($this->errors(), 400, $response);
+        }
+
         $validation = $this->validateObject($object);
         if ($validation !== true) {
             return $this->sendJsonErrors($validation, 404, $response);
